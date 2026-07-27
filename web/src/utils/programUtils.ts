@@ -62,6 +62,9 @@ export function activeSessionExercisesForDay(day: types.ProgramDay): types.Activ
       actual_weight: s.target_weight,
       completed: false,
       program_set_id: s.id,
+      is_warmup: s.is_warmup,
+      set_type: s.set_type,
+      rest_seconds: s.rest_seconds,
     })),
   }))
 }

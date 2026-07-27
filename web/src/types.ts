@@ -39,6 +39,10 @@ export interface Set {
   distance?: number
   rpe?: number
   is_warmup?: boolean
+  rest_seconds?: number
+  tempo?: string
+  isohold_seconds?: number
+  timestamp_completed?: string
 }
 
 export interface WorkoutExercise {
@@ -165,6 +169,9 @@ export interface ProgramSet {
   suggested_reps?: number
   suggested_weight?: number
   suggested_is_pr?: boolean
+  is_warmup?: boolean
+  set_type?: string
+  rest_seconds?: number
 }
 
 export interface ProgramExercise {
@@ -213,6 +220,13 @@ export interface ActiveSessionSet {
   // Links back to the routine's ProgramSet so finishing can auto-progress that
   // target (issue #40). Absent for freestyle sessions and ad-hoc added sets.
   program_set_id?: number
+  is_warmup?: boolean
+  set_type?: string
+  rest_seconds?: number
+  tempo?: string
+  isohold_seconds?: number
+  timestamp_completed?: string
+  rpe?: number
 }
 
 export interface ActiveSessionExercise {

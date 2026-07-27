@@ -643,8 +643,8 @@ func insertProgramExercises(tx *sql.Tx, programID, dayID int64, exercises []mode
 				sn = j + 1
 			}
 			if _, err := tx.Exec(
-				`INSERT INTO program_sets (program_exercise_id, set_number, target_reps, target_weight) VALUES (?, ?, ?, ?)`,
-				peid, sn, st.TargetReps, st.TargetWeight,
+				`INSERT INTO program_sets (program_exercise_id, set_number, target_reps, target_weight, is_warmup, set_type, rest_seconds) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+				peid, sn, st.TargetReps, st.TargetWeight, st.IsWarmup, st.SetType, st.RestSeconds,
 			); err != nil {
 				return err
 			}
@@ -741,7 +741,8 @@ func (s *ProgramStore) loadExercises(dayID int64) ([]models.ProgramExercise, err
 func (s *ProgramStore) loadSets(programExerciseID int64) ([]models.ProgramSet, error) {
 	rows, err := s.db.Query(
 		`SELECT id, program_exercise_id, set_number, target_reps, target_weight,
-		        suggested_weight, suggested_reps, suggested_is_pr
+		        suggested_weight, suggested_reps, suggested_is_pr,
+		        is_warmup, set_type, rest_seconds
 		 FROM program_sets WHERE program_exercise_id = ? ORDER BY set_number`,
 		programExerciseID,
 	)
@@ -755,7 +756,7 @@ func (s *ProgramStore) loadSets(programExerciseID int64) ([]models.ProgramSet, e
 		var sw sql.NullFloat64
 		var sr sql.NullInt64
 		if err := rows.Scan(&st.ID, &st.ProgramExerciseID, &st.SetNumber, &st.TargetReps, &st.TargetWeight,
-			&sw, &sr, &st.SuggestedIsPR); err != nil {
+			&sw, &sr, &st.SuggestedIsPR, &st.IsWarmup, &st.SetType, &st.RestSeconds); err != nil {
 			return nil, err
 		}
 		if sw.Valid {

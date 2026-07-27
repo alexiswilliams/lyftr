@@ -45,7 +45,7 @@ interface WorkoutSessionStore {
   gymExIdx: number
   gymSetIdx: number
   startSession: (name: string, exercises: types.ActiveSessionExercise[], programId?: number, programDayId?: number) => void
-  updateSet: (exIdx: number, setIdx: number, field: 'actual_reps' | 'actual_weight', val: number) => void
+  updateSet: <K extends keyof types.ActiveSessionSet>(exIdx: number, setIdx: number, field: K, val: types.ActiveSessionSet[K]) => void
   completeSet: (exIdx: number, setIdx: number) => void
   updateExerciseNotes: (exIdx: number, notes: string) => void
   addSet: (exIdx: number) => void
@@ -202,6 +202,8 @@ export const useWorkoutSession = create<WorkoutSessionStore>((set, get) => ({
           target_weight: last?.target_weight ?? 0,
           actual_reps: last?.actual_reps ?? 0,
           actual_weight: last?.actual_weight ?? 0,
+          is_warmup: last?.is_warmup ?? false,
+          rest_seconds: last?.rest_seconds ?? 0,
           completed: false,
         }],
       }
@@ -266,6 +268,13 @@ export const useWorkoutSession = create<WorkoutSessionStore>((set, get) => ({
           reps: s.actual_reps || s.target_reps,
           weight: s.actual_weight || s.target_weight,
           program_set_id: s.program_set_id ?? null, // which routine target this set can progress (#40)
+          is_warmup: s.is_warmup,
+          set_type: s.set_type,
+          rest_seconds: s.rest_seconds,
+          tempo: s.tempo,
+          isohold_seconds: s.isohold_seconds,
+          timestamp_completed: s.timestamp_completed,
+          rpe: s.rpe,
         })),
       })),
     }
