@@ -68,15 +68,16 @@ type WorkoutExercise struct {
 }
 
 type Set struct {
-	ID                 int64      `json:"id" db:"id"`
-	WorkoutExerciseID  int64      `json:"workout_exercise_id" db:"workout_exercise_id"`
-	SetNumber          int        `json:"set_number" db:"set_number"`
-	Reps               int        `json:"reps,omitempty" db:"reps"`
-	Weight             float64    `json:"weight,omitempty" db:"weight"`     // raw value in user's preferred unit (lbs or kg)
-	Duration           int        `json:"duration,omitempty" db:"duration"` // seconds, for timed sets
-	Distance           float64    `json:"distance,omitempty" db:"distance"` // meters
-	RPE                float64    `json:"rpe,omitempty" db:"rpe"`
-	IsWarmup           bool       `json:"is_warmup" db:"is_warmup"`
+	ID                int64   `json:"id" db:"id"`
+	WorkoutExerciseID int64   `json:"workout_exercise_id" db:"workout_exercise_id"`
+	SetNumber         int     `json:"set_number" db:"set_number"`
+	Reps              int     `json:"reps,omitempty" db:"reps"`
+	Weight            float64 `json:"weight,omitempty" db:"weight"`     // raw value in user's preferred unit (lbs or kg)
+	Duration          int     `json:"duration,omitempty" db:"duration"` // seconds, for timed sets
+	Distance          float64 `json:"distance,omitempty" db:"distance"` // meters
+	RPE               float64 `json:"rpe,omitempty" db:"rpe"`
+	IsWarmup          bool    `json:"is_warmup" db:"is_warmup"`
+
 	RestSeconds        int        `json:"rest_seconds,omitempty" db:"rest_seconds"`
 	Tempo              string     `json:"tempo,omitempty" db:"tempo"`
 	IsoholdSeconds     int        `json:"isohold_seconds,omitempty" db:"isohold_seconds"`
@@ -185,13 +186,14 @@ type CreateWorkoutExerciseReq struct {
 }
 
 type CreateSetReq struct {
-	SetNumber          int        `json:"set_number"`
-	Reps               int        `json:"reps"`
-	Weight             float64    `json:"weight"`
-	Duration           int        `json:"duration"`
-	Distance           float64    `json:"distance"`
-	RPE                float64    `json:"rpe"`
-	IsWarmup           bool       `json:"is_warmup"`
+	SetNumber int     `json:"set_number"`
+	Reps      int     `json:"reps"`
+	Weight    float64 `json:"weight"`
+	Duration  int     `json:"duration"`
+	Distance  float64 `json:"distance"`
+	RPE       float64 `json:"rpe"`
+	IsWarmup  bool    `json:"is_warmup"`
+
 	RestSeconds        int        `json:"rest_seconds"`
 	Tempo              string     `json:"tempo"`
 	IsoholdSeconds     int        `json:"isohold_seconds"`
