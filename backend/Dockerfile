@@ -1,8 +1,8 @@
 # Stage 1: Build — run on host platform, cross-compile to target
-FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS builder
+FROM golang:1.26-alpine AS builder
 
-ARG TARGETOS
-ARG TARGETARCH
+ARG TARGETOS=linux
+ARG TARGETARCH=amd64
 # Version baked into the binary. CI passes the git tag; defaults to "dev" locally.
 ARG VERSION=dev
 
@@ -15,7 +15,7 @@ RUN go mod download
 # Copy source and build the static binary via the shared build script
 # (single source of the version ldflags — see backend/build.sh)
 COPY . .
-RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH VERSION=$VERSION sh build.sh
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} VERSION=${VERSION} sh build.sh
 
 # Stage 2: Runtime
 FROM alpine:3.19
