@@ -62,3 +62,7 @@ web/playwright-report/
 
 # Local Fable/Sonnet porting specs (working artifacts, not committed)
 .workouts-port/
+web/.env.production
+program_backup.json
+.agents/
+skills-lock.json
