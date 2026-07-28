@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "lyftr",
+    "site": "lyftr-rat",
     "public": "dist",
     "ignore": [
       "firebase.json",
