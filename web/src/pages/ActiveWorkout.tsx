@@ -123,8 +123,14 @@ export default function ActiveWorkout() {
     
     if (isNowComplete && settings.rest_enabled) {
       const ex = session?.exercises[exIdx]
-      const r = (ex?.sets[setIdx].rest_seconds || ex?.rest_seconds) ?? settings.rest_seconds_default ?? 90
-      if (r > 0) startRest(r, exIdx, setIdx)
+      let r = ex?.sets[setIdx].rest_seconds ?? ex?.rest_seconds
+      if (r == null) {
+        const type = ex?.sets[setIdx].set_type || 'normal'
+        if (type === 'normal') r = settings.rest_timer_normal ?? 90
+        else if (type === 'warmup') r = settings.rest_timer_warmup ?? 60
+        else if (type === 'drop') r = settings.rest_timer_drop ?? 0
+      }
+      if (r != null && r > 0) startRest(r, exIdx, setIdx)
     }
     
     if (exIdx !== activeExIdx) setActiveExIdx(exIdx)
@@ -328,7 +334,7 @@ export default function ActiveWorkout() {
 
                   {ex.sets.map((set, setIdx) => {
                     const isNextSet = isActive && !set.completed && ex.sets.slice(0, setIdx).every(s => s.completed)
-                    const visualNum = ex.sets.slice(0, setIdx + 1).filter(st => !st.is_warmup).length
+                    const visualNum = ex.sets.slice(0, setIdx + 1).filter(st => st.set_type !== 'warmup').length
                     const isRestingHere = resting && restExIdx === exIdx && restSetIdx === setIdx
                     return (
                       <div key={setIdx} className="flex flex-col mb-1">
@@ -344,12 +350,15 @@ export default function ActiveWorkout() {
                           {/* Set number / Warm-up toggle */}
                           <div 
                             className="flex items-center justify-center py-3 rounded-l-xl cursor-pointer"
-                            onClick={() => updateSet(exIdx, setIdx, 'is_warmup', !set.is_warmup)}
+                            onClick={() => {
+                              const nextType = set.set_type === 'normal' ? 'warmup' : set.set_type === 'warmup' ? 'drop' : 'normal'
+                              updateSet(exIdx, setIdx, 'set_type', nextType)
+                            }}
                           >
                             <span className={`text-sm font-bold tabular-nums px-1.5 py-0.5 rounded transition-colors ${
-                              set.is_warmup ? 'bg-orange-500/20 text-orange-500' : set.completed ? 'text-brand-400' : isNextSet ? 'text-brand-300' : 'text-tx-muted'
+                              set.set_type === 'warmup' ? 'bg-orange-500/20 text-orange-500' : set.set_type === 'drop' ? 'bg-error-500/20 text-error-500' : set.completed ? 'text-brand-400' : isNextSet ? 'text-brand-300' : 'text-tx-muted'
                             }`}>
-                              {set.is_warmup ? 'W' : visualNum}
+                              {set.set_type === 'warmup' ? 'W' : set.set_type === 'drop' ? 'D' : visualNum}
                             </span>
                           </div>
 

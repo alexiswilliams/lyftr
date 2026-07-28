@@ -508,8 +508,14 @@ export default function GymModeWorkout({ wUnit }: GymModeWorkoutProps) {
     }
     // Completing: start rest (per-set value, else per-exercise value, else global default; 0 = off).
     if (settings.rest_enabled) {
-      const r = (ex.sets[setIdx].rest_seconds || ex.rest_seconds) ?? settings.rest_seconds_default ?? 90
-      if (r > 0) startRest(r, activeIdx, setIdx)
+      let r = ex.sets[setIdx].rest_seconds ?? ex.rest_seconds
+      if (r == null) {
+        const type = ex.sets[setIdx].set_type || 'normal'
+        if (type === 'normal') r = settings.rest_timer_normal ?? 90
+        else if (type === 'warmup') r = settings.rest_timer_warmup ?? 60
+        else if (type === 'drop') r = settings.rest_timer_drop ?? 0
+      }
+      if (r != null && r > 0) startRest(r, activeIdx, setIdx)
     }
     // Auto-advance to next incomplete set
     const next = nextIncompleteSet(ex.sets, setIdx)
@@ -583,7 +589,7 @@ export default function GymModeWorkout({ wUnit }: GymModeWorkoutProps) {
             // the timer keeps a subtle brand ring so it reads as "resting after
             // this one" even though focus auto-advanced to the next set.
             const resting = restingHere && restSetIdx === i
-            const visualNum = ex.sets.slice(0, i + 1).filter(st => !st.is_warmup).length
+            const visualNum = ex.sets.slice(0, i + 1).filter(st => st.set_type !== 'warmup').length
             return (
               <button
                 key={i}
@@ -597,7 +603,7 @@ export default function GymModeWorkout({ wUnit }: GymModeWorkoutProps) {
                 }`}
               >
                 {s.completed && <Check className="w-3.5 h-3.5" />}
-                {s.is_warmup ? 'W' : visualNum}
+                {s.set_type === 'warmup' ? 'W' : s.set_type === 'drop' ? 'D' : visualNum}
               </button>
             )
           })}
@@ -606,13 +612,18 @@ export default function GymModeWorkout({ wUnit }: GymModeWorkoutProps) {
         {/* Target reference for this set (the goal to hit) */}
         <div className="flex items-center justify-between w-full">
           <button
-            onClick={() => updateSet(activeIdx, clampedSetIdx, 'is_warmup', !set.is_warmup)}
+            onClick={() => {
+              const nextType = set.set_type === 'normal' ? 'warmup' : set.set_type === 'warmup' ? 'drop' : 'normal'
+              updateSet(activeIdx, clampedSetIdx, 'set_type', nextType)
+            }}
             disabled={set.completed}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-              set.is_warmup ? 'bg-orange-500/10 text-orange-500' : 'bg-surface-muted text-tx-muted hover:text-tx-secondary'
+              set.set_type === 'warmup' ? 'bg-orange-500/10 text-orange-500' :
+              set.set_type === 'drop' ? 'bg-error-500/10 text-error-500' :
+              'bg-surface-muted text-tx-muted hover:text-tx-secondary'
             }`}
           >
-            {set.is_warmup ? 'Warm-up Set' : 'Working Set'}
+            {set.set_type === 'warmup' ? 'Warm-up Set' : set.set_type === 'drop' ? 'Drop Set' : 'Working Set'}
           </button>
 
           {(set.target_reps > 0 || set.target_weight > 0) && (
@@ -627,11 +638,9 @@ export default function GymModeWorkout({ wUnit }: GymModeWorkoutProps) {
         </div>
 
         {/* Set-Level Rest Override */}
-        <div className="w-full flex justify-end -mb-2">
+         <div className="w-full flex justify-end -mb-2">
            <button
              onClick={() => {
-               // In a real app we'd open a modal, but for now we'll just prompt to keep it simple,
-               // or we can implement the RestPicker directly. Let's just use window.prompt for this MVP override.
                const val = window.prompt("Enter rest time in seconds for this set:", String(set.rest_seconds || ''))
                if (val !== null) {
                  const secs = parseInt(val, 10)
@@ -642,7 +651,7 @@ export default function GymModeWorkout({ wUnit }: GymModeWorkoutProps) {
              }}
              className="text-xs font-bold text-brand-400 bg-brand-500/10 px-3 py-1 rounded-full hover:bg-brand-500/20 transition-colors shadow-sm"
            >
-             Timer: {set.rest_seconds ? `${Math.floor(set.rest_seconds / 60)}:${(set.rest_seconds % 60).toString().padStart(2, '0')}` : 'Default'}
+             Timer: {set.rest_seconds != null ? `${Math.floor(set.rest_seconds / 60)}:${(set.rest_seconds % 60).toString().padStart(2, '0')}` : 'Default'}
            </button>
         </div>
 

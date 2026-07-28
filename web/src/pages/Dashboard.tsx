@@ -38,8 +38,15 @@ const DEFAULT_FOOD: types.DailyStats = {
   total_calories: 0, total_protein: 0, total_carbs: 0, total_fat: 0, total_fiber: 0, workout_count: 0,
 }
 const DEFAULT_SETTINGS: types.UserSettings = {
-  user_id: 0, weight_unit: 'lbs', calorie_target: 2000,
-  protein_target: 150, carb_target: 250, fat_target: 65,
+  user_id: 1,
+  weight_unit: 'lbs',
+  calorie_target: 2500,
+  protein_target: 180,
+  carb_target: 250,
+  fat_target: 80,
+  rest_timer_normal: 90,
+  rest_timer_warmup: 60,
+  rest_timer_drop: 0,
 }
 
 // Hex colors for recharts (can't use Tailwind classes)

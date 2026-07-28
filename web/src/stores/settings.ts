@@ -28,12 +28,15 @@ interface SettingsStore {
 }
 
 const DEFAULTS: types.UserSettings = {
-  user_id: 0,
+  user_id: 1,
   weight_unit: 'lbs',
-  calorie_target: 2000,
-  protein_target: 150,
+  calorie_target: 2500,
+  protein_target: 180,
   carb_target: 250,
-  fat_target: 65,
+  fat_target: 80,
+  rest_timer_normal: 90,
+  rest_timer_warmup: 60,
+  rest_timer_drop: 0,
   ...clientPrefs(),
 }
 
