@@ -27,9 +27,13 @@ func seedWorkoutWithSet(t *testing.T, userID, exID int64, weight float64, reps i
 	if err := row.Scan(&weID); err != nil {
 		t.Fatalf("insert workout_exercise: %v", err)
 	}
+	setType := "normal"
+	if isWarmup == 1 {
+		setType = "warmup"
+	}
 	_, err := db.DB.Exec(
-		`INSERT INTO sets (workout_exercise_id, set_number, reps, weight, is_warmup) VALUES (?, 1, ?, ?, ?)`,
-		weID, reps, weight, isWarmup,
+		`INSERT INTO sets (workout_exercise_id, set_number, reps, weight, is_warmup, set_type) VALUES (?, 1, ?, ?, ?, ?)`,
+		weID, reps, weight, isWarmup, setType,
 	)
 	if err != nil {
 		t.Fatalf("insert set: %v", err)

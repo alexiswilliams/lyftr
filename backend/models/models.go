@@ -12,11 +12,14 @@ type User struct {
 
 type UserSettings struct {
 	UserID        int64  `json:"user_id" db:"user_id"`
-	WeightUnit    string `json:"weight_unit" db:"weight_unit"` // "lbs" or "kg"
-	CalorieTarget int    `json:"calorie_target" db:"calorie_target"`
-	ProteinTarget int    `json:"protein_target" db:"protein_target"`
-	CarbTarget    int    `json:"carb_target" db:"carb_target"`
-	FatTarget     int    `json:"fat_target" db:"fat_target"`
+	WeightUnit      string `json:"weight_unit" db:"weight_unit"` // "lbs" or "kg"
+	CalorieTarget   int    `json:"calorie_target" db:"calorie_target"`
+	ProteinTarget   int    `json:"protein_target" db:"protein_target"`
+	CarbTarget      int    `json:"carb_target" db:"carb_target"`
+	FatTarget       int    `json:"fat_target" db:"fat_target"`
+	RestTimerNormal int    `json:"rest_timer_normal" db:"rest_timer_normal"`
+	RestTimerWarmup int    `json:"rest_timer_warmup" db:"rest_timer_warmup"`
+	RestTimerDrop   int    `json:"rest_timer_drop" db:"rest_timer_drop"`
 }
 
 // DefaultUserSettings is the single source of truth for a brand-new user's
@@ -100,6 +103,7 @@ type Set struct {
 	Distance           float64    `json:"distance,omitempty" db:"distance"` // meters
 	RPE                float64    `json:"rpe,omitempty" db:"rpe"`
 	IsWarmup           bool       `json:"is_warmup" db:"is_warmup"`
+	SetType            string     `json:"set_type,omitempty" db:"set_type"`
 	RestSeconds        int        `json:"rest_seconds,omitempty" db:"rest_seconds"`
 	Tempo              string     `json:"tempo,omitempty" db:"tempo"`
 	IsoholdSeconds     int        `json:"isohold_seconds,omitempty" db:"isohold_seconds"`
@@ -287,11 +291,14 @@ type SaveFoodRequest struct {
 // from the JSON) is distinguishable from an intentional 0. Only non-nil fields
 // are applied — a partial update never zeroes the fields it omits (#37).
 type UpdateSettingsRequest struct {
-	WeightUnit    *string `json:"weight_unit" validate:"omitempty,oneof=lbs kg"`
-	CalorieTarget *int    `json:"calorie_target" validate:"omitempty,gte=0"`
-	ProteinTarget *int    `json:"protein_target" validate:"omitempty,gte=0"`
-	CarbTarget    *int    `json:"carb_target" validate:"omitempty,gte=0"`
-	FatTarget     *int    `json:"fat_target" validate:"omitempty,gte=0"`
+	WeightUnit      *string `json:"weight_unit" validate:"omitempty,oneof=lbs kg"`
+	CalorieTarget   *int    `json:"calorie_target" validate:"omitempty,gte=0"`
+	ProteinTarget   *int    `json:"protein_target" validate:"omitempty,gte=0"`
+	CarbTarget      *int    `json:"carb_target" validate:"omitempty,gte=0"`
+	FatTarget       *int    `json:"fat_target" validate:"omitempty,gte=0"`
+	RestTimerNormal *int    `json:"rest_timer_normal" validate:"omitempty,gte=0"`
+	RestTimerWarmup *int    `json:"rest_timer_warmup" validate:"omitempty,gte=0"`
+	RestTimerDrop   *int    `json:"rest_timer_drop" validate:"omitempty,gte=0"`
 }
 
 type Program struct {

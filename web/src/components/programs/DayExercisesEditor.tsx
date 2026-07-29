@@ -4,7 +4,7 @@ import WeightInput from '../WeightInput'
 import ExercisePicker from '../ExercisePicker'
 import RestPicker from '../RestPicker'
 import * as types from '../../types'
-import type { DayExerciseDraft } from './types'
+import type { DayExerciseDraft, DaySetDraft } from './types'
 
 interface Props {
   exercises: DayExerciseDraft[]

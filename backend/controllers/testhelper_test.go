@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/Cawlumm/lyftr-backend/db"
@@ -22,6 +23,7 @@ var th *Handler
 
 func setupTestDB(t *testing.T) {
 	t.Helper()
+	os.Setenv("ALLOWED_EMAILS", "*")
 	var err error
 	// modernc ignores the mattn-style _foreign_keys=on; use the _pragma form so the
 	// harness actually enforces foreign keys, matching the production DSN.
@@ -55,7 +57,10 @@ CREATE TABLE IF NOT EXISTS user_settings (
   calorie_target INTEGER NOT NULL DEFAULT 2000,
   protein_target INTEGER NOT NULL DEFAULT 150,
   carb_target    INTEGER NOT NULL DEFAULT 250,
-  fat_target     INTEGER NOT NULL DEFAULT 65
+  fat_target     INTEGER NOT NULL DEFAULT 65,
+  rest_timer_normal INTEGER NOT NULL DEFAULT 90,
+  rest_timer_warmup INTEGER NOT NULL DEFAULT 0,
+  rest_timer_drop   INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS exercises (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -101,6 +106,8 @@ CREATE TABLE IF NOT EXISTS sets (
   distance REAL NOT NULL DEFAULT 0,
   rpe REAL NOT NULL DEFAULT 0,
   is_warmup INTEGER NOT NULL DEFAULT 0,
+  set_type TEXT NOT NULL DEFAULT 'normal',
+  rest_seconds INTEGER NOT NULL DEFAULT 0,
   tempo TEXT,
   isohold_seconds INTEGER,
   timestamp_completed DATETIME
@@ -136,7 +143,10 @@ CREATE TABLE IF NOT EXISTS program_sets (
   target_weight REAL NOT NULL DEFAULT 0,
   suggested_weight REAL,
   suggested_reps INTEGER,
-  suggested_is_pr INTEGER NOT NULL DEFAULT 0
+  suggested_is_pr INTEGER NOT NULL DEFAULT 0,
+  is_warmup INTEGER NOT NULL DEFAULT 0,
+  set_type TEXT NOT NULL DEFAULT 'normal',
+  rest_seconds INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS weight_logs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

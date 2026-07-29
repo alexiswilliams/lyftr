@@ -3,7 +3,7 @@
 # First deploy: fly deploy
 # See fly/SETUP.md for full instructions.
 
-app = "lyftr-demo"
+app = "lyftr-backend-alexis"
 primary_region = "fra"
 
 [build]
@@ -13,7 +13,7 @@ primary_region = "fra"
   ENV        = "production"
   PORT       = "3000"
   DB_PATH    = "/app/data/lyftr.db"
-  CORS_ORIGIN = "https://lyftr-demo.fly.dev"
+  CORS_ORIGIN = "https://lyftr-rat.web.app"
 
 # JWT_SECRET must be set as a secret:
 #   fly secrets set JWT_SECRET=$(openssl rand -hex 32)
@@ -21,9 +21,9 @@ primary_region = "fra"
 [http_service]
   internal_port       = 80
   force_https         = true
-  auto_stop_machines  = false
+  auto_stop_machines  = "stop"
   auto_start_machines = true
-  min_machines_running = 1
+  min_machines_running = 0
 
   [http_service.concurrency]
     type       = "connections"

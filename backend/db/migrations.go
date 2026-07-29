@@ -85,6 +85,10 @@ func alterMigrations() {
 	ensureColumn("program_sets", "rest_seconds", `ALTER TABLE program_sets ADD COLUMN rest_seconds INTEGER NOT NULL DEFAULT 0`)
 	ensureColumn("sets", "rest_seconds", `ALTER TABLE sets ADD COLUMN rest_seconds INTEGER NOT NULL DEFAULT 0`)
 	ensureColumn("sets", "set_type", `ALTER TABLE sets ADD COLUMN set_type TEXT NOT NULL DEFAULT 'normal'`)
+
+	ensureColumn("user_settings", "rest_timer_normal", `ALTER TABLE user_settings ADD COLUMN rest_timer_normal INTEGER NOT NULL DEFAULT 90`)
+	ensureColumn("user_settings", "rest_timer_warmup", `ALTER TABLE user_settings ADD COLUMN rest_timer_warmup INTEGER NOT NULL DEFAULT 0`)
+	ensureColumn("user_settings", "rest_timer_drop", `ALTER TABLE user_settings ADD COLUMN rest_timer_drop INTEGER NOT NULL DEFAULT 0`)
 }
 
 // normalizeWorkoutStartedAt rewrites any workouts.started_at stored with a non-UTC
@@ -425,12 +429,15 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS user_settings (
-  user_id        INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-  weight_unit    TEXT    NOT NULL DEFAULT 'lbs',
-  calorie_target INTEGER NOT NULL DEFAULT 2000,
-  protein_target INTEGER NOT NULL DEFAULT 150,
-  carb_target    INTEGER NOT NULL DEFAULT 250,
-  fat_target     INTEGER NOT NULL DEFAULT 65
+  user_id           INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  weight_unit       TEXT    NOT NULL DEFAULT 'lbs',
+  calorie_target    INTEGER NOT NULL DEFAULT 2000,
+  protein_target    INTEGER NOT NULL DEFAULT 150,
+  carb_target       INTEGER NOT NULL DEFAULT 250,
+  fat_target        INTEGER NOT NULL DEFAULT 65,
+  rest_timer_normal INTEGER NOT NULL DEFAULT 90,
+  rest_timer_warmup INTEGER NOT NULL DEFAULT 0,
+  rest_timer_drop   INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS exercises (
@@ -477,6 +484,7 @@ CREATE TABLE IF NOT EXISTS sets (
   distance            REAL    NOT NULL DEFAULT 0,
   rpe                 REAL    NOT NULL DEFAULT 0,
   is_warmup           INTEGER NOT NULL DEFAULT 0,
+  set_type            TEXT    NOT NULL DEFAULT 'normal',
   rest_seconds        INTEGER NOT NULL DEFAULT 0,
   tempo               TEXT    NOT NULL DEFAULT '',
   isohold_seconds     INTEGER NOT NULL DEFAULT 0,
@@ -560,6 +568,7 @@ CREATE TABLE IF NOT EXISTS program_sets (
   target_reps         INTEGER NOT NULL DEFAULT 0,
   target_weight       REAL    NOT NULL DEFAULT 0,
   is_warmup           INTEGER NOT NULL DEFAULT 0,
+  set_type            TEXT    NOT NULL DEFAULT 'normal',
   rest_seconds        INTEGER NOT NULL DEFAULT 0
 );
 `
