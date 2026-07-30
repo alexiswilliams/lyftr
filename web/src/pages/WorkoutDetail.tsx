@@ -88,7 +88,7 @@ export default function WorkoutDetail() {
     exs.reduce((s, ex) => s + (ex.sets ?? []).reduce((ss, set) => ss + set.reps * set.weight, 0), 0),
     wUnit
   )
-  const totalSets = exs.reduce((s, ex) => s + (ex.sets ?? []).length, 0)
+  const totalSets = exs.reduce((s, ex) => s + (ex.sets ?? []).filter(set => set.set_type !== 'warmup').length, 0)
   const durationMin = Math.round(workout.duration / 60)
 
   return (
@@ -231,7 +231,7 @@ export default function WorkoutDetail() {
                         {ex.exercise.muscle_group}
                       </span>
                     )}
-                    <span className="text-xs text-tx-muted truncate">{sets.length} sets{exVol > 0 ? ` · ${exVol.toLocaleString()} ${wUnit}` : ''}</span>
+                    <span className="text-xs text-tx-muted truncate">{sets.filter(set => set.set_type !== 'warmup').length} sets{exVol > 0 ? ` · ${exVol.toLocaleString()} ${wUnit}` : ''}</span>
                   </div>
                 </div>
                 {maxWeight > 0 && (

@@ -73,6 +73,22 @@ func alterMigrations() {
 	workoutProgramDayMigration()
 
 	normalizeWorkoutStartedAt()
+
+	// Custom fields for clinical metrics
+	ensureColumn("sets", "tempo", `ALTER TABLE sets ADD COLUMN tempo TEXT NOT NULL DEFAULT ''`)
+	ensureColumn("sets", "isohold_seconds", `ALTER TABLE sets ADD COLUMN isohold_seconds INTEGER NOT NULL DEFAULT 0`)
+	ensureColumn("sets", "timestamp_completed", `ALTER TABLE sets ADD COLUMN timestamp_completed DATETIME`)
+
+	// Per-set rest timers and warm-ups
+	ensureColumn("program_sets", "is_warmup", `ALTER TABLE program_sets ADD COLUMN is_warmup INTEGER NOT NULL DEFAULT 0`)
+	ensureColumn("program_sets", "set_type", `ALTER TABLE program_sets ADD COLUMN set_type TEXT NOT NULL DEFAULT 'normal'`)
+	ensureColumn("program_sets", "rest_seconds", `ALTER TABLE program_sets ADD COLUMN rest_seconds INTEGER NOT NULL DEFAULT 0`)
+	ensureColumn("sets", "rest_seconds", `ALTER TABLE sets ADD COLUMN rest_seconds INTEGER NOT NULL DEFAULT 0`)
+	ensureColumn("sets", "set_type", `ALTER TABLE sets ADD COLUMN set_type TEXT NOT NULL DEFAULT 'normal'`)
+
+	ensureColumn("user_settings", "rest_timer_normal", `ALTER TABLE user_settings ADD COLUMN rest_timer_normal INTEGER NOT NULL DEFAULT 90`)
+	ensureColumn("user_settings", "rest_timer_warmup", `ALTER TABLE user_settings ADD COLUMN rest_timer_warmup INTEGER NOT NULL DEFAULT 0`)
+	ensureColumn("user_settings", "rest_timer_drop", `ALTER TABLE user_settings ADD COLUMN rest_timer_drop INTEGER NOT NULL DEFAULT 0`)
 }
 
 // normalizeWorkoutStartedAt rewrites any workouts.started_at stored with a non-UTC
@@ -413,12 +429,15 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS user_settings (
-  user_id        INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-  weight_unit    TEXT    NOT NULL DEFAULT 'lbs',
-  calorie_target INTEGER NOT NULL DEFAULT 2000,
-  protein_target INTEGER NOT NULL DEFAULT 150,
-  carb_target    INTEGER NOT NULL DEFAULT 250,
-  fat_target     INTEGER NOT NULL DEFAULT 65
+  user_id           INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  weight_unit       TEXT    NOT NULL DEFAULT 'lbs',
+  calorie_target    INTEGER NOT NULL DEFAULT 2000,
+  protein_target    INTEGER NOT NULL DEFAULT 150,
+  carb_target       INTEGER NOT NULL DEFAULT 250,
+  fat_target        INTEGER NOT NULL DEFAULT 65,
+  rest_timer_normal INTEGER NOT NULL DEFAULT 90,
+  rest_timer_warmup INTEGER NOT NULL DEFAULT 0,
+  rest_timer_drop   INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS exercises (
@@ -464,7 +483,12 @@ CREATE TABLE IF NOT EXISTS sets (
   duration            INTEGER NOT NULL DEFAULT 0,
   distance            REAL    NOT NULL DEFAULT 0,
   rpe                 REAL    NOT NULL DEFAULT 0,
-  is_warmup           INTEGER NOT NULL DEFAULT 0
+  is_warmup           INTEGER NOT NULL DEFAULT 0,
+  set_type            TEXT    NOT NULL DEFAULT 'normal',
+  rest_seconds        INTEGER NOT NULL DEFAULT 0,
+  tempo               TEXT    NOT NULL DEFAULT '',
+  isohold_seconds     INTEGER NOT NULL DEFAULT 0,
+  timestamp_completed DATETIME
 );
 
 CREATE TABLE IF NOT EXISTS weight_logs (
@@ -542,6 +566,9 @@ CREATE TABLE IF NOT EXISTS program_sets (
   program_exercise_id INTEGER NOT NULL REFERENCES program_exercises(id) ON DELETE CASCADE,
   set_number          INTEGER NOT NULL DEFAULT 1,
   target_reps         INTEGER NOT NULL DEFAULT 0,
-  target_weight       REAL    NOT NULL DEFAULT 0
+  target_weight       REAL    NOT NULL DEFAULT 0,
+  is_warmup           INTEGER NOT NULL DEFAULT 0,
+  set_type            TEXT    NOT NULL DEFAULT 'normal',
+  rest_seconds        INTEGER NOT NULL DEFAULT 0
 );
 `

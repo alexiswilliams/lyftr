@@ -48,7 +48,7 @@ describe('DayExercisesEditor', () => {
     fireEvent.click(screen.getByText('Add Set'))
     const next: DayExerciseDraft[] = onChange.mock.calls[0][0]
     expect(next[0].sets).toHaveLength(2)
-    expect(next[0].sets[1]).toEqual({ set_number: 2, target_reps: 0, target_weight: 0 })
+    expect(next[0].sets[1]).toEqual({ set_number: 2, target_reps: 0, target_weight: 0, set_type: 'normal', rest_seconds: 90 })
   })
 
   it('editing target reps coerces to a number (garbage → 0)', () => {

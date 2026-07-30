@@ -61,6 +61,9 @@ export default function Settings() {
     protein_target: storedSettings.protein_target,
     carb_target: storedSettings.carb_target,
     fat_target: storedSettings.fat_target,
+    rest_timer_normal: storedSettings.rest_timer_normal,
+    rest_timer_warmup: storedSettings.rest_timer_warmup,
+    rest_timer_drop: storedSettings.rest_timer_drop,
   })
 
   const loadSeedStatus = useCallback(async () => {
@@ -82,6 +85,9 @@ export default function Settings() {
           protein_target: s.protein_target,
           carb_target: s.carb_target,
           fat_target: s.fat_target,
+          rest_timer_normal: s.rest_timer_normal,
+          rest_timer_warmup: s.rest_timer_warmup,
+          rest_timer_drop: s.rest_timer_drop,
         })
       } catch (err: any) {
         setError(err.message || 'Failed to load settings')
@@ -230,55 +236,51 @@ export default function Settings() {
 
         {(() => {
           const enabled = storedSettings.rest_enabled ?? true
-          const presets = [60, 90, 120, 180]
-          const cur = storedSettings.rest_seconds_default ?? 90
-          const isCustom = !presets.includes(cur)
-          const customActive = isCustom || showCustomRest
-          const seg = (active: boolean) =>
-            `flex-1 min-w-0 flex flex-col items-center justify-center gap-1 py-2 transition-colors ${
-              active ? 'bg-brand-500 text-white' : 'bg-surface-muted text-tx-secondary hover:text-tx-primary'
-            }`
           return (
-            <div className={`py-4 transition-opacity ${enabled ? '' : 'opacity-40 pointer-events-none select-none'}`} aria-disabled={!enabled}>
-              <p className="text-sm font-medium text-tx-primary">Default rest</p>
-              <p className="text-xs text-tx-muted mt-0.5 mb-3">Seeds new exercises · per-exercise rest overrides it</p>
-              <div className="flex rounded-xl border border-surface-border overflow-hidden divide-x divide-surface-border">
-                {presets.map(sec => (
-                  <button key={sec} disabled={!enabled} onClick={() => { setShowCustomRest(false); setRestSeconds(sec) }} className={seg(!customActive && cur === sec)}>
-                    <Clock className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span className="text-[11px] font-semibold leading-none">{sec}s</span>
-                  </button>
-                ))}
-                <button disabled={!enabled} onClick={() => setShowCustomRest(true)} className={seg(customActive)}>
-                  <Pencil className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span className="text-[11px] font-semibold leading-none">{isCustom ? `${cur}s` : 'Custom'}</span>
+            <div className={`py-4 space-y-4 transition-opacity ${enabled ? '' : 'opacity-40 pointer-events-none select-none'}`} aria-disabled={!enabled}>
+              <p className="text-sm font-medium text-tx-primary border-b border-surface-border pb-2">Update Rest Timers</p>
+              
+              <SettingRow label="Work Set" description="Default for standard sets">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={formData.rest_timer_normal}
+                    onChange={e => setFormData({ ...formData, rest_timer_normal: parseInt(e.target.value) || 0 })}
+                    className="input w-24 text-right"
+                  />
+                  <span className="text-xs text-tx-muted">s</span>
+                </div>
+              </SettingRow>
+
+              <SettingRow label="Warm-up Set" description="Default for warm-up sets">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={formData.rest_timer_warmup}
+                    onChange={e => setFormData({ ...formData, rest_timer_warmup: parseInt(e.target.value) || 0 })}
+                    className="input w-24 text-right"
+                  />
+                  <span className="text-xs text-tx-muted">s</span>
+                </div>
+              </SettingRow>
+
+              <SettingRow label="Drop Set" description="Default for drop sets">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={formData.rest_timer_drop}
+                    onChange={e => setFormData({ ...formData, rest_timer_drop: parseInt(e.target.value) || 0 })}
+                    className="input w-24 text-right"
+                  />
+                  <span className="text-xs text-tx-muted">s</span>
+                </div>
+              </SettingRow>
+
+              <div className="pt-2 flex justify-end">
+                <button onClick={handleSave} disabled={saving} className="btn-primary btn-sm">
+                  <Check className="w-3.5 h-3.5" /> {saving ? 'Saving...' : 'Update Rest Timers'}
                 </button>
               </div>
-              {customActive && (
-                <div className="flex items-center justify-center gap-2 mt-3">
-                  <button type="button" disabled={!enabled} aria-label="−5 seconds" onClick={() => setRestSeconds(Math.max(0, cur - 5))}
-                    className="p-2.5 rounded-xl bg-surface-muted border border-surface-border text-tx-secondary active:scale-95 hover:text-tx-primary">
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      min={0}
-                      max={3600}
-                      disabled={!enabled}
-                      value={cur}
-                      onChange={e => setRestSeconds(Math.max(0, Math.min(3600, Number(e.target.value) || 0)))}
-                      className="input w-28 text-center py-2.5 pr-9 text-base font-semibold tabular-nums"
-                      aria-label="Custom rest seconds"
-                    />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-tx-muted pointer-events-none">sec</span>
-                  </div>
-                  <button type="button" disabled={!enabled} aria-label="+5 seconds" onClick={() => setRestSeconds(Math.min(3600, cur + 5))}
-                    className="p-2.5 rounded-xl bg-surface-muted border border-surface-border text-tx-secondary active:scale-95 hover:text-tx-primary">
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
             </div>
           )
         })()}

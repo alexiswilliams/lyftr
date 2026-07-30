@@ -303,7 +303,7 @@ test.describe('Gym Mode', { tag: '@mobile' }, () => {
     expect(storedList).toBe('list')
   })
 
-  test('gym mode overlay opens when navigating to active workout', async ({ page }) => {
+  test('gym mode overlay opens when navigating to active workout', { tag: '@mobile' }, async ({ page }) => {
     await seedGymSession(page, 'E2E Gym Test', 'Bench Press',
       [{ set_number: 1, target_reps: 5, target_weight: 100, actual_reps: 5, actual_weight: 100, completed: false }]
     )
@@ -314,7 +314,7 @@ test.describe('Gym Mode', { tag: '@mobile' }, () => {
     await expect(page.getByRole('button', { name: /start workout/i })).toBeVisible({ timeout: 3000 })
   })
 
-  test('gym mode overview shows exercise list and stats', async ({ page }) => {
+  test('gym mode overview shows exercise list and stats', { tag: '@mobile' }, async ({ page }) => {
     await seedGymSession(page, 'E2E Stats Test', 'Bench Press', [
       { set_number: 1, target_reps: 5, target_weight: 100, actual_reps: 5, actual_weight: 100, completed: false },
       { set_number: 2, target_reps: 5, target_weight: 100, actual_reps: 5, actual_weight: 100, completed: false },
@@ -326,7 +326,7 @@ test.describe('Gym Mode', { tag: '@mobile' }, () => {
     await expect(page.getByText('Bench Press').first()).toBeVisible()
   })
 
-  test('gym mode cancel button shows confirm dialog', async ({ page }) => {
+  test('gym mode cancel button shows confirm dialog', { tag: '@mobile' }, async ({ page }) => {
     await seedGymSession(page, 'E2E Cancel Test', 'Bench Press',
       [{ set_number: 1, target_reps: 5, target_weight: 100, actual_reps: 5, actual_weight: 100, completed: false }]
     )
@@ -341,7 +341,7 @@ test.describe('Gym Mode', { tag: '@mobile' }, () => {
     await expect(page.getByText('Discard workout?')).not.toBeVisible()
   })
 
-  test('gym mode navigates overview → exercise info → sets', async ({ page }) => {
+  test('gym mode navigates overview → exercise info → sets', { tag: '@mobile' }, async ({ page }) => {
     await seedGymSession(page, 'E2E Navigation Test', 'Squat',
       [{ set_number: 1, target_reps: 5, target_weight: 100, actual_reps: 5, actual_weight: 100, completed: false }]
     )
@@ -360,7 +360,7 @@ test.describe('Gym Mode', { tag: '@mobile' }, () => {
     await expect(page.getByRole('button', { name: /complete set/i })).toBeVisible()
   })
 
-  test('gym mode minimize shows active session pill', async ({ page }) => {
+  test('gym mode minimize shows active session pill', { tag: '@mobile' }, async ({ page }) => {
     await seedGymSession(page, 'E2E Minimize Test', 'Deadlift',
       [{ set_number: 1, target_reps: 3, target_weight: 150, actual_reps: 3, actual_weight: 150, completed: false }]
     )
@@ -382,7 +382,7 @@ test.describe('Gym Mode', { tag: '@mobile' }, () => {
     await expect(page.getByRole('button', { name: /start workout/i })).toBeVisible({ timeout: 3000 })
   })
 
-  test('gym mode set stepper updates reps input', async ({ page }) => {
+  test('gym mode set stepper updates reps input', { tag: '@mobile' }, async ({ page }) => {
     await seedGymSession(page, 'E2E Stepper Test', 'OHP',
       [{ set_number: 1, target_reps: 8, target_weight: 60, actual_reps: 0, actual_weight: 0, completed: false }]
     )
@@ -400,7 +400,7 @@ test.describe('Gym Mode', { tag: '@mobile' }, () => {
     await expect(repsInput).toHaveValue('7', { timeout: 2000 })
   })
 
-  test('gym mode complete set marks it done', async ({ page }) => {
+  test('gym mode complete set marks it done', { tag: '@mobile' }, async ({ page }) => {
     // Single set — completing it shows "Completed" (no auto-advance to next set)
     await seedGymSession(page, 'E2E Complete Test', 'Row', [
       { set_number: 1, target_reps: 5, target_weight: 80, actual_reps: 5, actual_weight: 80, completed: false },
@@ -417,7 +417,7 @@ test.describe('Gym Mode', { tag: '@mobile' }, () => {
     await expect(page.getByRole('button', { name: /completed/i })).toBeVisible({ timeout: 2000 })
   })
 
-  test('gym mode restores phase after minimize and reopen', async ({ page }) => {
+  test('gym mode restores phase after minimize and reopen', { tag: '@mobile' }, async ({ page }) => {
     const exId = gymExerciseId
     await page.addInitScript(({ sk, lk, id }: { sk: string; lk: string; id: number }) => {
       const session = {
@@ -462,7 +462,7 @@ test.describe('Gym Mode', { tag: '@mobile' }, () => {
     await expect(page.getByText('Exercise Two').first()).toBeVisible({ timeout: 3000 })
   })
 
-  test('gym mode restores phase after page refresh', async ({ page }) => {
+  test('gym mode restores phase after page refresh', { tag: '@mobile' }, async ({ page }) => {
     const exId = gymExerciseId
     await page.addInitScript(({ sk, lk, id }: { sk: string; lk: string; id: number }) => {
       const session = {

@@ -1,0 +1,10 @@
+.git
+.github
+node_modules
+web/node_modules
+lyftr.db
+lyftr.db-shm
+lyftr.db-wal
+docs
+site
+mobile

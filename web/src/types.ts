@@ -13,6 +13,9 @@ export interface UserSettings {
   carb_target: number
   fat_target: number
   workout_layout?: 'list' | 'gym'
+  rest_timer_normal?: number
+  rest_timer_warmup?: number
+  rest_timer_drop?: number
   // Client-only (localStorage, not persisted server-side):
   rest_enabled?: boolean        // master rest-timer on/off
   rest_seconds_default?: number // default rest seconds, seeds new exercises
@@ -39,6 +42,11 @@ export interface Set {
   distance?: number
   rpe?: number
   is_warmup?: boolean
+  set_type?: 'normal' | 'warmup' | 'drop'
+  rest_seconds?: number
+  tempo?: string
+  isohold_seconds?: number
+  timestamp_completed?: string
 }
 
 export interface WorkoutExercise {
@@ -165,6 +173,9 @@ export interface ProgramSet {
   suggested_reps?: number
   suggested_weight?: number
   suggested_is_pr?: boolean
+  is_warmup?: boolean
+  set_type?: 'normal' | 'warmup' | 'drop'
+  rest_seconds?: number
 }
 
 export interface ProgramExercise {
@@ -213,6 +224,13 @@ export interface ActiveSessionSet {
   // Links back to the routine's ProgramSet so finishing can auto-progress that
   // target (issue #40). Absent for freestyle sessions and ad-hoc added sets.
   program_set_id?: number
+  is_warmup?: boolean
+  set_type?: 'normal' | 'warmup' | 'drop'
+  rest_seconds?: number
+  tempo?: string
+  isohold_seconds?: number
+  timestamp_completed?: string
+  rpe?: number
 }
 
 export interface ActiveSessionExercise {

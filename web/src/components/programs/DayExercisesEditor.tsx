@@ -4,7 +4,7 @@ import WeightInput from '../WeightInput'
 import ExercisePicker from '../ExercisePicker'
 import RestPicker from '../RestPicker'
 import * as types from '../../types'
-import type { DayExerciseDraft } from './types'
+import type { DayExerciseDraft, DaySetDraft } from './types'
 
 interface Props {
   exercises: DayExerciseDraft[]
@@ -27,7 +27,7 @@ export default function DayExercisesEditor({ exercises, onChange, pickerExercise
       exercise_id: exercise.id,
       notes: '',
       rest_seconds: restSecondsDefault,
-      sets: [{ set_number: 1, target_reps: 0, target_weight: 0 }],
+      sets: [{ set_number: 1, target_reps: 0, target_weight: 0, set_type: 'normal', rest_seconds: restSecondsDefault }],
     }])
     setShowPicker(false)
   }
@@ -37,7 +37,7 @@ export default function DayExercisesEditor({ exercises, onChange, pickerExercise
   const addSet = (exIdx: number) => {
     const next = [...exercises]
     const count = next[exIdx].sets.length + 1
-    next[exIdx] = { ...next[exIdx], sets: [...next[exIdx].sets, { set_number: count, target_reps: 0, target_weight: 0 }] }
+    next[exIdx] = { ...next[exIdx], sets: [...next[exIdx].sets, { set_number: count, target_reps: 0, target_weight: 0, set_type: 'normal', rest_seconds: restSecondsDefault }] }
     onChange(next)
   }
 
@@ -47,10 +47,14 @@ export default function DayExercisesEditor({ exercises, onChange, pickerExercise
     onChange(next)
   }
 
-  const updateSet = (exIdx: number, setIdx: number, field: 'target_reps' | 'target_weight', value: any) => {
+  const updateSet = (exIdx: number, setIdx: number, field: keyof DaySetDraft, value: any) => {
     const next = [...exercises]
     const sets = [...next[exIdx].sets]
-    sets[setIdx] = { ...sets[setIdx], [field]: Number(value) || 0 }
+    if (field === 'set_type') {
+      sets[setIdx] = { ...sets[setIdx], [field]: value }
+    } else {
+      sets[setIdx] = { ...sets[setIdx], [field]: Number(value) || 0 }
+    }
     next[exIdx] = { ...next[exIdx], sets }
     onChange(next)
   }
@@ -143,9 +147,20 @@ export default function DayExercisesEditor({ exercises, onChange, pickerExercise
                   </div>
                   {workoutEx.sets.map((set, setIdx) => (
                     <div key={setIdx} className="flex gap-2 items-end bg-surface-raised/40 p-3 rounded-lg border border-surface-border/50">
-                      <div className="flex-shrink-0 w-12">
-                        <label className="text-xs text-tx-muted font-medium uppercase tracking-wider block">Set</label>
-                        <div className="text-sm font-bold text-tx-primary bg-surface-muted px-2 py-1 rounded text-center">{set.set_number}</div>
+                      <div className="flex-shrink-0 w-12 cursor-pointer" onClick={() => {
+                        const type = set.set_type || (set.is_warmup ? 'warmup' : 'normal')
+                        const nextType = type === 'normal' ? 'warmup' : type === 'warmup' ? 'drop' : 'normal'
+                        updateSet(exIdx, setIdx, 'set_type', nextType)
+                        updateSet(exIdx, setIdx, 'is_warmup', nextType === 'warmup' ? 1 : 0) // ensure legacy boolean doesn't conflict
+                      }}>
+                        <label className="text-xs text-tx-muted font-medium uppercase tracking-wider block cursor-pointer">Set</label>
+                        <div className={`text-sm font-bold px-2 py-1 rounded text-center transition-colors ${
+                          set.set_type === 'warmup' ? 'bg-orange-500/20 text-orange-500' :
+                          set.set_type === 'drop' ? 'bg-error-500/20 text-error-500' :
+                          'bg-surface-muted text-tx-primary'
+                        }`}>
+                          {set.set_type === 'warmup' ? 'W' : set.set_type === 'drop' ? 'D' : workoutEx.sets.slice(0, setIdx + 1).filter(s => s.set_type !== 'warmup').length}
+                        </div>
                       </div>
                       <div className="flex-1 min-w-0">
                         <label className="text-xs text-tx-muted font-medium uppercase tracking-wider block mb-1">Target Reps</label>

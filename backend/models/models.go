@@ -12,11 +12,14 @@ type User struct {
 
 type UserSettings struct {
 	UserID        int64  `json:"user_id" db:"user_id"`
-	WeightUnit    string `json:"weight_unit" db:"weight_unit"` // "lbs" or "kg"
-	CalorieTarget int    `json:"calorie_target" db:"calorie_target"`
-	ProteinTarget int    `json:"protein_target" db:"protein_target"`
-	CarbTarget    int    `json:"carb_target" db:"carb_target"`
-	FatTarget     int    `json:"fat_target" db:"fat_target"`
+	WeightUnit      string `json:"weight_unit" db:"weight_unit"` // "lbs" or "kg"
+	CalorieTarget   int    `json:"calorie_target" db:"calorie_target"`
+	ProteinTarget   int    `json:"protein_target" db:"protein_target"`
+	CarbTarget      int    `json:"carb_target" db:"carb_target"`
+	FatTarget       int    `json:"fat_target" db:"fat_target"`
+	RestTimerNormal int    `json:"rest_timer_normal" db:"rest_timer_normal"`
+	RestTimerWarmup int    `json:"rest_timer_warmup" db:"rest_timer_warmup"`
+	RestTimerDrop   int    `json:"rest_timer_drop" db:"rest_timer_drop"`
 }
 
 // DefaultUserSettings is the single source of truth for a brand-new user's
@@ -91,15 +94,20 @@ type WorkoutExercise struct {
 }
 
 type Set struct {
-	ID                int64   `json:"id" db:"id"`
-	WorkoutExerciseID int64   `json:"workout_exercise_id" db:"workout_exercise_id"`
-	SetNumber         int     `json:"set_number" db:"set_number"`
-	Reps              int     `json:"reps,omitempty" db:"reps"`
-	Weight            float64 `json:"weight,omitempty" db:"weight"`     // raw value in user's preferred unit (lbs or kg)
-	Duration          int     `json:"duration,omitempty" db:"duration"` // seconds, for timed sets
-	Distance          float64 `json:"distance,omitempty" db:"distance"` // meters
-	RPE               float64 `json:"rpe,omitempty" db:"rpe"`
-	IsWarmup          bool    `json:"is_warmup" db:"is_warmup"`
+	ID                 int64      `json:"id" db:"id"`
+	WorkoutExerciseID  int64      `json:"workout_exercise_id" db:"workout_exercise_id"`
+	SetNumber          int        `json:"set_number" db:"set_number"`
+	Reps               int        `json:"reps,omitempty" db:"reps"`
+	Weight             float64    `json:"weight,omitempty" db:"weight"`     // raw value in user's preferred unit (lbs or kg)
+	Duration           int        `json:"duration,omitempty" db:"duration"` // seconds, for timed sets
+	Distance           float64    `json:"distance,omitempty" db:"distance"` // meters
+	RPE                float64    `json:"rpe,omitempty" db:"rpe"`
+	IsWarmup           bool       `json:"is_warmup" db:"is_warmup"`
+	SetType            string     `json:"set_type,omitempty" db:"set_type"`
+	RestSeconds        int        `json:"rest_seconds,omitempty" db:"rest_seconds"`
+	Tempo              string     `json:"tempo,omitempty" db:"tempo"`
+	IsoholdSeconds     int        `json:"isohold_seconds,omitempty" db:"isohold_seconds"`
+	TimestampCompleted *time.Time `json:"timestamp_completed,omitempty" db:"timestamp_completed"`
 }
 
 type WeightLog struct {
@@ -228,13 +236,18 @@ type CreateWorkoutExerciseReq struct {
 }
 
 type CreateSetReq struct {
-	SetNumber int     `json:"set_number"`
-	Reps      int     `json:"reps"`
-	Weight    float64 `json:"weight"`
-	Duration  int     `json:"duration"`
-	Distance  float64 `json:"distance"`
-	RPE       float64 `json:"rpe"`
-	IsWarmup  bool    `json:"is_warmup"`
+	SetNumber          int        `json:"set_number"`
+	Reps               int        `json:"reps"`
+	Weight             float64    `json:"weight"`
+	Duration           int        `json:"duration"`
+	Distance           float64    `json:"distance"`
+	RPE                float64    `json:"rpe"`
+	IsWarmup           bool       `json:"is_warmup"`
+	SetType            string     `json:"set_type"`
+	RestSeconds        int        `json:"rest_seconds"`
+	Tempo              string     `json:"tempo"`
+	IsoholdSeconds     int        `json:"isohold_seconds"`
+	TimestampCompleted *time.Time `json:"timestamp_completed"`
 	// ProgramSetID links this logged set back to the routine set it came from, so
 	// auto-progression (issue #40) can bump exactly that target. nil for sets not
 	// sourced from a routine (freestyle, or ad-hoc sets added mid-workout).
@@ -278,11 +291,14 @@ type SaveFoodRequest struct {
 // from the JSON) is distinguishable from an intentional 0. Only non-nil fields
 // are applied — a partial update never zeroes the fields it omits (#37).
 type UpdateSettingsRequest struct {
-	WeightUnit    *string `json:"weight_unit" validate:"omitempty,oneof=lbs kg"`
-	CalorieTarget *int    `json:"calorie_target" validate:"omitempty,gte=0"`
-	ProteinTarget *int    `json:"protein_target" validate:"omitempty,gte=0"`
-	CarbTarget    *int    `json:"carb_target" validate:"omitempty,gte=0"`
-	FatTarget     *int    `json:"fat_target" validate:"omitempty,gte=0"`
+	WeightUnit      *string `json:"weight_unit" validate:"omitempty,oneof=lbs kg"`
+	CalorieTarget   *int    `json:"calorie_target" validate:"omitempty,gte=0"`
+	ProteinTarget   *int    `json:"protein_target" validate:"omitempty,gte=0"`
+	CarbTarget      *int    `json:"carb_target" validate:"omitempty,gte=0"`
+	FatTarget       *int    `json:"fat_target" validate:"omitempty,gte=0"`
+	RestTimerNormal *int    `json:"rest_timer_normal" validate:"omitempty,gte=0"`
+	RestTimerWarmup *int    `json:"rest_timer_warmup" validate:"omitempty,gte=0"`
+	RestTimerDrop   *int    `json:"rest_timer_drop" validate:"omitempty,gte=0"`
 }
 
 type Program struct {
@@ -338,6 +354,9 @@ type ProgramSet struct {
 	SuggestedWeight *float64 `json:"suggested_weight,omitempty"`
 	SuggestedReps   *int     `json:"suggested_reps,omitempty"`
 	SuggestedIsPR   bool     `json:"suggested_is_pr,omitempty"`
+	IsWarmup        bool     `json:"is_warmup" db:"is_warmup"`
+	SetType         string   `json:"set_type" db:"set_type"`
+	RestSeconds     int      `json:"rest_seconds" db:"rest_seconds"`
 }
 
 // MaxProgramRows bounds the TOTAL number of rows (days + exercises + sets combined)
@@ -390,6 +409,9 @@ type CreateProgramSetReq struct {
 	SetNumber    int     `json:"set_number"`
 	TargetReps   int     `json:"target_reps"`
 	TargetWeight float64 `json:"target_weight"`
+	IsWarmup     bool    `json:"is_warmup"` // DEPRECATED
+	SetType      string  `json:"set_type"`
+	RestSeconds  int     `json:"rest_seconds"`
 }
 
 type DailyStats struct {

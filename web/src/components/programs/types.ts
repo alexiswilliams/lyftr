@@ -6,6 +6,9 @@ export interface DaySetDraft {
   set_number: number
   target_reps: number
   target_weight: number
+  is_warmup?: boolean
+  set_type?: 'normal' | 'warmup' | 'drop'
+  rest_seconds?: number
 }
 
 export interface DayExerciseDraft {

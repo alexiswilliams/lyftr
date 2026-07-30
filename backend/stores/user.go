@@ -27,14 +27,14 @@ func (s *UserStore) GetByEmail(email string) (models.User, error) {
 	return u, err
 }
 
-const userSettingsSelect = `SELECT user_id, weight_unit, calorie_target, protein_target, carb_target, fat_target FROM user_settings`
+const userSettingsSelect = `SELECT user_id, weight_unit, calorie_target, protein_target, carb_target, fat_target, rest_timer_normal, rest_timer_warmup, rest_timer_drop FROM user_settings`
 
 // GetSettings returns the user's settings row, or sql.ErrNoRows if none (the
 // controller owns the default fallback).
 func (s *UserStore) GetSettings(uid int64) (models.UserSettings, error) {
 	var st models.UserSettings
 	err := s.db.QueryRow(userSettingsSelect+` WHERE user_id = ?`, uid).
-		Scan(&st.UserID, &st.WeightUnit, &st.CalorieTarget, &st.ProteinTarget, &st.CarbTarget, &st.FatTarget)
+		Scan(&st.UserID, &st.WeightUnit, &st.CalorieTarget, &st.ProteinTarget, &st.CarbTarget, &st.FatTarget, &st.RestTimerNormal, &st.RestTimerWarmup, &st.RestTimerDrop)
 	return st, err
 }
 
@@ -50,23 +50,29 @@ func (s *UserStore) UpsertSettings(uid int64, req models.UpdateSettingsRequest) 
 	d := models.DefaultUserSettings(uid)
 	var st models.UserSettings
 	err := s.db.QueryRow(
-		`INSERT INTO user_settings (user_id, weight_unit, calorie_target, protein_target, carb_target, fat_target)
-		 VALUES (?, COALESCE(?, ?), COALESCE(?, ?), COALESCE(?, ?), COALESCE(?, ?), COALESCE(?, ?))
+		`INSERT INTO user_settings (user_id, weight_unit, calorie_target, protein_target, carb_target, fat_target, rest_timer_normal, rest_timer_warmup, rest_timer_drop)
+		 VALUES (?, COALESCE(?, ?), COALESCE(?, ?), COALESCE(?, ?), COALESCE(?, ?), COALESCE(?, ?), COALESCE(?, ?), COALESCE(?, ?), COALESCE(?, ?))
 		 ON CONFLICT(user_id) DO UPDATE SET
 		   weight_unit    = COALESCE(?, user_settings.weight_unit),
 		   calorie_target = COALESCE(?, user_settings.calorie_target),
 		   protein_target = COALESCE(?, user_settings.protein_target),
 		   carb_target    = COALESCE(?, user_settings.carb_target),
-		   fat_target     = COALESCE(?, user_settings.fat_target)
-		 RETURNING user_id, weight_unit, calorie_target, protein_target, carb_target, fat_target`,
+		   fat_target     = COALESCE(?, user_settings.fat_target),
+		   rest_timer_normal = COALESCE(?, user_settings.rest_timer_normal),
+		   rest_timer_warmup = COALESCE(?, user_settings.rest_timer_warmup),
+		   rest_timer_drop   = COALESCE(?, user_settings.rest_timer_drop)
+		 RETURNING user_id, weight_unit, calorie_target, protein_target, carb_target, fat_target, rest_timer_normal, rest_timer_warmup, rest_timer_drop`,
 		uid,
 		req.WeightUnit, d.WeightUnit,
 		req.CalorieTarget, d.CalorieTarget,
 		req.ProteinTarget, d.ProteinTarget,
 		req.CarbTarget, d.CarbTarget,
 		req.FatTarget, d.FatTarget,
-		req.WeightUnit, req.CalorieTarget, req.ProteinTarget, req.CarbTarget, req.FatTarget,
-	).Scan(&st.UserID, &st.WeightUnit, &st.CalorieTarget, &st.ProteinTarget, &st.CarbTarget, &st.FatTarget)
+		req.RestTimerNormal, d.RestTimerNormal,
+		req.RestTimerWarmup, d.RestTimerWarmup,
+		req.RestTimerDrop, d.RestTimerDrop,
+		req.WeightUnit, req.CalorieTarget, req.ProteinTarget, req.CarbTarget, req.FatTarget, req.RestTimerNormal, req.RestTimerWarmup, req.RestTimerDrop,
+	).Scan(&st.UserID, &st.WeightUnit, &st.CalorieTarget, &st.ProteinTarget, &st.CarbTarget, &st.FatTarget, &st.RestTimerNormal, &st.RestTimerWarmup, &st.RestTimerDrop)
 	if err != nil {
 		return models.UserSettings{}, err
 	}
