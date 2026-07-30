@@ -573,14 +573,11 @@ export default function GymModeWorkout({ wUnit }: GymModeWorkoutProps) {
 
       {/* The whole logging group (set chips, target, inputs, action). Scrollable +
           min-h-0 so when the rest timer docks below and compresses this area the
-          content scrolls instead of clipping; m-auto keeps it centred when it fits. */}
+          content scrolls instead of clipping. */}
       <div className="flex-1 min-h-0 overflow-y-auto flex flex-col">
-        {/* m-auto (not justify-center): centres the group when it fits, and when the
-            docked rest panel leaves too little room (short phones) the auto margins
-            collapse and the group scrolls with EVERYTHING reachable — margin-auto is
-            scroll-stable where flex justify-center fights the scroll. No hardcoded
-            heights. Spacing tightens while resting; roomy otherwise. */}
-        <div className={`m-auto w-full flex flex-col items-center px-5 ${restingHere ? 'gap-4 py-2' : 'gap-6 py-4'}`}>
+        {/* Spacer pushes content down if it fits, shrinks to 0 if it overflows */}
+        <div className="flex-1 min-h-0" />
+        <div className={`w-full flex-shrink-0 flex flex-col items-center px-5 ${restingHere ? 'gap-4 py-2' : 'gap-6 py-4'}`}>
         {/* Set selector — one chip per set: active filled, done shows a check.
             Progress + navigation in one place (replaced the old dots + big number). */}
         <div className="flex items-center justify-center flex-wrap gap-2">
@@ -783,6 +780,8 @@ export default function GymModeWorkout({ wUnit }: GymModeWorkoutProps) {
           )}
         </div>
         </div>
+        {/* Spacer pushes content up if it fits, shrinks to 0 if it overflows */}
+        <div className="flex-1 min-h-0" />
       </div>
 
       {/* Bottom nav */}
