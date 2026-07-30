@@ -613,8 +613,10 @@ export default function GymModeWorkout({ wUnit }: GymModeWorkoutProps) {
         <div className="flex items-center justify-between w-full">
           <button
             onClick={() => {
-              const nextType = set.set_type === 'normal' ? 'warmup' : set.set_type === 'warmup' ? 'drop' : 'normal'
+              const type = set.set_type || (set.is_warmup ? 'warmup' : 'normal')
+              const nextType = type === 'normal' ? 'warmup' : type === 'warmup' ? 'drop' : 'normal'
               updateSet(activeIdx, clampedSetIdx, 'set_type', nextType)
+              updateSet(activeIdx, clampedSetIdx, 'is_warmup', nextType === 'warmup' ? true : false)
             }}
             disabled={set.completed}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${

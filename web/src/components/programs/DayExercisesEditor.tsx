@@ -147,10 +147,19 @@ export default function DayExercisesEditor({ exercises, onChange, pickerExercise
                   </div>
                   {workoutEx.sets.map((set, setIdx) => (
                     <div key={setIdx} className="flex gap-2 items-end bg-surface-raised/40 p-3 rounded-lg border border-surface-border/50">
-                      <div className="flex-shrink-0 w-12 cursor-pointer" onClick={() => updateSet(exIdx, setIdx, 'is_warmup', !set.is_warmup)}>
+                      <div className="flex-shrink-0 w-12 cursor-pointer" onClick={() => {
+                        const type = set.set_type || (set.is_warmup ? 'warmup' : 'normal')
+                        const nextType = type === 'normal' ? 'warmup' : type === 'warmup' ? 'drop' : 'normal'
+                        updateSet(exIdx, setIdx, 'set_type', nextType)
+                        updateSet(exIdx, setIdx, 'is_warmup', nextType === 'warmup' ? 1 : 0) // ensure legacy boolean doesn't conflict
+                      }}>
                         <label className="text-xs text-tx-muted font-medium uppercase tracking-wider block cursor-pointer">Set</label>
-                        <div className={`text-sm font-bold px-2 py-1 rounded text-center transition-colors ${set.is_warmup ? 'bg-orange-500/20 text-orange-500' : 'bg-surface-muted text-tx-primary'}`}>
-                          {set.is_warmup ? 'W' : workoutEx.sets.slice(0, setIdx + 1).filter(s => !s.is_warmup).length}
+                        <div className={`text-sm font-bold px-2 py-1 rounded text-center transition-colors ${
+                          set.set_type === 'warmup' ? 'bg-orange-500/20 text-orange-500' :
+                          set.set_type === 'drop' ? 'bg-error-500/20 text-error-500' :
+                          'bg-surface-muted text-tx-primary'
+                        }`}>
+                          {set.set_type === 'warmup' ? 'W' : set.set_type === 'drop' ? 'D' : workoutEx.sets.slice(0, setIdx + 1).filter(s => s.set_type !== 'warmup').length}
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">

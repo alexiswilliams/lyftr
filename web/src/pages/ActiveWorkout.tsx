@@ -351,14 +351,19 @@ export default function ActiveWorkout() {
                           <div 
                             className="flex items-center justify-center py-3 rounded-l-xl cursor-pointer"
                             onClick={() => {
-                              const nextType = set.set_type === 'normal' ? 'warmup' : set.set_type === 'warmup' ? 'drop' : 'normal'
+                              const type = set.set_type || (set.is_warmup ? 'warmup' : 'normal')
+                              const nextType = type === 'normal' ? 'warmup' : type === 'warmup' ? 'drop' : 'normal'
                               updateSet(exIdx, setIdx, 'set_type', nextType)
+                              updateSet(exIdx, setIdx, 'is_warmup', nextType === 'warmup' ? true : false)
                             }}
                           >
                             <span className={`text-sm font-bold tabular-nums px-1.5 py-0.5 rounded transition-colors ${
-                              set.set_type === 'warmup' ? 'bg-orange-500/20 text-orange-500' : set.set_type === 'drop' ? 'bg-error-500/20 text-error-500' : set.completed ? 'text-brand-400' : isNextSet ? 'text-brand-300' : 'text-tx-muted'
+                              (set.set_type || (set.is_warmup ? 'warmup' : 'normal')) === 'warmup' ? 'bg-orange-500/20 text-orange-500' : 
+                              set.set_type === 'drop' ? 'bg-error-500/20 text-error-500' : 
+                              set.completed ? 'text-brand-400' : 
+                              isNextSet ? 'text-brand-300' : 'text-tx-muted'
                             }`}>
-                              {set.set_type === 'warmup' ? 'W' : set.set_type === 'drop' ? 'D' : visualNum}
+                              {(set.set_type || (set.is_warmup ? 'warmup' : 'normal')) === 'warmup' ? 'W' : set.set_type === 'drop' ? 'D' : visualNum}
                             </span>
                           </div>
 
